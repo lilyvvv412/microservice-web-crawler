@@ -1,0 +1,109 @@
+:root {
+  --bg: #f3f6f8;
+  --ink: #15202b;
+  --accent: #0b6e99;
+  --line: #d5dee5;
+  --card: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, #d9eef7, transparent 40%),
+    linear-gradient(180deg, #eef4f7 0%, var(--bg) 40%);
+  min-height: 100vh;
+}
+
+.wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.8rem;
+}
+
+header p {
+  margin: 0 0 1.5rem;
+  color: #405463;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1.1rem;
+}
+
+form {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+}
+
+label {
+  grid-column: 1 / -1;
+  font-size: 0.85rem;
+  color: #4a5d6a;
+}
+
+input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+}
+
+button {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover { filter: brightness(1.05); }
+
+.msg { min-height: 1.2rem; color: #405463; }
+.box {
+  background: #f7fafc;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.75rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.hidden { display: none; }
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #e4eef4;
+  font-size: 0.85rem;
+}
+.badge.ok { background: #d8f3e2; color: #146c2e; }
+.badge.warn { background: #fff1d6; color: #8a5a00; }
+.badge.err { background: #fde2e2; color: #9b1c1c; }
+.results { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+.results li {
+  border-top: 1px solid var(--line);
+  padding: 0.75rem 0;
+}
+.results a { color: var(--accent); }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Crawler Demo</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Web Crawler Demo</h1>
+      <p>Submit URL → Redis → Extract → MongoDB → Elasticsearch → Search</p>
+    </header>
+
+    <section>
+      <h2>1. Crawl a URL</h2>
+      <form id="crawl-form">
+        <label for="crawl-url">URL</label>
+        <input id="crawl-url" name="url" type="url" required
+          value="http://127.0.0.1:3000/fixture/demo.html"
+          placeholder="https://example.com" />
+        <button type="submit">Start crawl</button>
+      </form>
+      <p id="crawl-hint" class="msg"></p>
+      <p id="crawl-msg" class="msg"></p>
+      <div id="task-box" class="box hidden">
+        <p><strong>taskId:</strong> <code id="task-id"></code></p>
+        <p><strong>status:</strong> <span id="task-status" class="badge">—</span></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Search indexed pages</h2>
+      <form id="search-form">
+        <label for="search-q">Keyword</label>
+        <input id="search-q" name="q" required value="aurora lighthouse" placeholder="aurora lighthouse" />
+        <button type="submit">Search</button>
+      </form>
+      <ul id="search-results" class="results"></ul>
+    </section>
+
+    <section>
+      <h2>3. Page detail / cache source</h2>
+      <form id="page-form">
+        <label for="page-url">URL</label>
+        <input id="page-url" name="url" type="url" required
+          value="http://api-gateway:3000/fixture/demo.html" />
+        <button type="submit">Load page</button>
+      </form>
+      <p>Data source: <span id="page-source" class="badge">—</span></p>
+      <pre id="page-detail" class="box"></pre>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

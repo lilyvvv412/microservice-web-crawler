@@ -1,0 +1,23 @@
+{
+  "name": "search-service",
+  "version": "1.0.0",
+  "description": "Search and Indexing Service for Web Crawler",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@elastic/elasticsearch": "^7.17.14",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0",
+    "redis": "^4.6.7",
+    "ioredis": "^5.3.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

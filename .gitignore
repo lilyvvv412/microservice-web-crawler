@@ -1,0 +1,31 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated output
+node_modules/
+**/node_modules/
+coverage/
+dist/
+build/
+logs/
+*.log
+.tmp/
+.cache/
+
+# Local/editor/OS files
+.DS_Store
+.idea/
+.vscode/
+
+# Local process-manager evidence can contain environment variables, paths,
+# credentials, and tokens. Keep sanitized Markdown summaries instead.
+docs/evidence/*.json
+docs/evidence/*.html
+docs/evidence/*.txt
+
+# Course/demo artifacts that are not source code
+467-finalproj.html
+*.zip
+*.mp4

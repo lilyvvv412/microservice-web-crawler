@@ -1,0 +1,170 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    ports:
+      - "${API_GATEWAY_PORT}:3000"
+    volumes:
+      - ./services/api-gateway:/app/services/api-gateway
+      - /app/services/api-gateway/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - JWT_SECRET=${AUTH_SECRET}
+      - DEPLOY_MODE=compose
+      - TASK_SCHEDULER_URL=http://task-scheduler:3005
+      - DATA_STORAGE_URL=http://data-storage:3002/api
+      - SEARCH_INDEXING_URL=http://search-indexing:3003/api
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+      - task-scheduler
+      - data-storage
+      - search-indexing
+    networks:
+      - crawler-network
+    restart: unless-stopped
+
+  data-extraction:
+    build:
+      context: .
+      dockerfile: services/extraction-service/Dockerfile
+    volumes:
+      - ./services/extraction-service:/app/services/extraction-service
+      - ./shared:/app/shared
+      - /app/services/extraction-service/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATA_STORAGE_URL=http://data-storage:3002/api
+      - SEARCH_INDEXING_URL=http://search-indexing:3003/api
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30000}
+      - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
+      - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
+    depends_on:
+      - redis
+      - data-storage
+      - search-indexing
+    networks:
+      - crawler-network
+    restart: unless-stopped
+
+  data-storage:
+    build:
+      context: .
+      dockerfile: services/storage-service/Dockerfile
+    volumes:
+      - ./services/storage-service:/app/services/storage-service
+      - /app/services/storage-service/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3002
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo:27017/${MONGO_DB}?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - crawler-network
+    restart: unless-stopped
+
+  search-indexing:
+    build:
+      context: .
+      dockerfile: services/search-service/Dockerfile
+    volumes:
+      - ./services/search-service:/app/services/search-service
+      - /app/services/search-service/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3003
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - elasticsearch
+      - redis
+    networks:
+      - crawler-network
+    restart: unless-stopped
+
+  task-scheduler:
+    build:
+      context: .
+      dockerfile: services/scheduler-service/Dockerfile
+    volumes:
+      - ./services/scheduler-service:/app/services/scheduler-service
+      - ./shared:/app/shared
+      - /app/services/scheduler-service/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3005
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATA_EXTRACTION_URL=http://data-extraction:3001
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-60000}
+      - MAX_CONCURRENT_TASKS=${MAX_CONCURRENT_REQUESTS:-5}
+    depends_on:
+      - redis
+      - data-extraction
+    networks:
+      - crawler-network
+    restart: unless-stopped
+
+  # Database and caching services
+  mongo:
+    image: mongo:latest
+    ports:
+      - "${MONGO_PORT}:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - crawler-network
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    ports:
+      - "${ELASTICSEARCH_PORT}:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - crawler-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:latest
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - crawler-network
+    restart: unless-stopped
+
+networks:
+  crawler-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  elasticsearch-data:
+  redis-data:
